@@ -7,16 +7,16 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.buildLightCommandLine = exports.buildCommandLine = void 0;
+exports.buildLightCommandLine = exports.buildCandleCommandLine = exports.buildCommandLine = void 0;
 function buildCommandLine(msiName, sourceFile, workspace, outputDir, architecture, extensions, candleExtraArguments, lightExtraArguments, candlePath, lightPath) {
     const workspaceRoot = `z:${workspace}`;
     const sourceFiles = sourceFile.split(',');
-    const lightCmd = buildLightCommandLine(msiName, sourceFiles, workspaceRoot, outputDir, extensions, lightExtraArguments, lightPath);
-    const candleCmd = buildCandleCommandLine(candlePath, workspaceRoot, architecture, candleExtraArguments, extensions, sourceFiles);
-    return `${candleCmd}; ${lightCmd}`;
+    const lightCmd = buildLightCommandLine(sourceFiles, workspaceRoot, msiName, outputDir, extensions, lightExtraArguments, lightPath);
+    const candleCmd = buildCandleCommandLine(sourceFiles, workspaceRoot, architecture, extensions, candleExtraArguments, candlePath);
+    return `${candleCmd} && ${lightCmd}`;
 }
 exports.buildCommandLine = buildCommandLine;
-function buildCandleCommandLine(candlePath, workspaceRoot, architecture, candleExtraArguments, extensions, sourceFiles) {
+function buildCandleCommandLine(sourceFiles, workspaceRoot, architecture, extensions, candleExtraArguments, candlePath) {
     const candleCmd = [];
     candleCmd.push(candlePath || 'candle');
     candleCmd.push('-nologo');
@@ -35,7 +35,8 @@ function buildCandleCommandLine(candlePath, workspaceRoot, architecture, candleE
     }
     return candleCmd.join(' ');
 }
-function buildLightCommandLine(msiName, sourceFiles, workspaceRoot, outputDir, extensions, lightExtraArguments, lightPath) {
+exports.buildCandleCommandLine = buildCandleCommandLine;
+function buildLightCommandLine(sourceFiles, workspaceRoot, msiName, outputDir, extensions, lightExtraArguments, lightPath) {
     var _a;
     const msiPath = `${workspaceRoot}/${outputDir}/${msiName}.msi`;
     const lightCmd = [];
@@ -99,46 +100,50 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(186));
 const exec = __importStar(__nccwpck_require__(514));
 const fs = __importStar(__nccwpck_require__(747));
-// import * as os from 'os';
+const io = __importStar(__nccwpck_require__(436));
+const os = __importStar(__nccwpck_require__(87));
 const helpers_1 = __nccwpck_require__(8);
 const child_process_1 = __nccwpck_require__(129);
+const path_1 = __nccwpck_require__(622);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            // if (os.platform() !== 'linux') {
-            //   core.setFailed(`Not supported on ${os.platform()} platform`);
-            //   return;
-            // }
+            const docker = yield io.which('docker', true);
             const containerWorkspace = '/workspace';
-            const githubWorkspace = process.env['GITHUB_WORKSPACE'] || '.';
+            const githubWorkspace = process.env['GITHUB_WORKSPACE'] || process.cwd();
             const image = core.getInput('image') || 'quay.io/utilitywarehouse/docker-wix';
             const msiName = core.getInput('name', { required: true });
             const sourceFile = core.getInput('sourceFiles', { required: true });
             const outputDir = core.getInput('outputDir', { required: true });
             const architecture = core.getInput('architecture');
             const extensions = core.getInput('extensions');
-            const candleExtraArguments = core.getInput('candleExtraArguments:');
-            const lightExtraArguments = core.getInput('lightExtraArguments:');
+            const candleExtraArguments = core.getInput('candleExtraArguments');
+            const lightExtraArguments = core.getInput('lightExtraArguments');
             const candleExe = core.getInput('candleExecutable');
             const lightExe = core.getInput('lightExecutable');
             const args = (0, helpers_1.buildCommandLine)(msiName, sourceFile, containerWorkspace, outputDir, architecture, extensions, candleExtraArguments, lightExtraArguments, candleExe, lightExe);
             core.startGroup('Pulling WiX Toolset Docker image');
-            yield exec.exec('docker', ['pull', image]);
+            yield exec.exec(docker, ['pull', image]);
             core.endGroup();
             core.startGroup('Build MSI using Candle & Light');
-            fs.writeFileSync('/tmp/env.txt', (0, child_process_1.execSync)(`env`, { encoding: 'utf8' }).trim());
-            yield exec.exec('docker', [
+            const envFile = `${os.tmpdir()}${path_1.sep}env.txt`;
+            fs.writeFileSync(envFile, (0, child_process_1.execSync)(`env`, { encoding: 'utf8' }).trim());
+            core.info(`Building the MSI using the following commands: ${args}`);
+            yield exec.exec(docker, [
                 'run',
                 '--rm',
                 '--env-file',
-                '/tmp/env.txt',
+                envFile,
                 '--workdir',
                 containerWorkspace,
                 '--volume',
                 `${githubWorkspace}:${containerWorkspace}`,
                 image,
+                'sh',
+                '-c',
                 args,
             ]);
+            fs.unlinkSync(envFile);
             core.endGroup();
         }
         catch (error) {
