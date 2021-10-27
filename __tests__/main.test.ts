@@ -34,14 +34,16 @@ function cleanBuild(): void {
   });
 
   const msiDir = path.join(rootDir, outputDir);
-  const msiDirFiles = fs.readdirSync(msiDir);
-  msiDirFiles.forEach((file) => {
-    if (file.match(/.*\.(msi?)/gi)) {
-      const fullpath = path.join(msiDir, file);
-      console.log(fullpath);
-      fs.unlinkSync(fullpath);
-    }
-  });
+  if (fs.existsSync(msiDir)) {
+    const msiDirFiles = fs.readdirSync(msiDir);
+    msiDirFiles.forEach((file) => {
+      if (file.match(/.*\.(msi?)/gi)) {
+        const fullpath = path.join(msiDir, file);
+        console.log(fullpath);
+        fs.unlinkSync(fullpath);
+      }
+    });
+  }
 }
 // shows how the runner will run a javascript action with env / stdout protocol
 test('test Simple MSI creation', () => {
