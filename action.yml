@@ -1,0 +1,46 @@
+name: "WiX Toolset MSI Build"
+description: "Build MSIs using WiX toolset"
+author: "UW"
+branding:
+  icon: "package"
+  color: "purple"
+
+inputs:
+  name:
+    description: "Name of the MSI"
+    required: true
+  sourceFiles:
+    description: "Relative path of the source file. Use ',' for mutiple source files"
+    required: true
+  outputDir:
+    description: "Relative path of the output directory of the MSI"
+    required: true
+  architecture:
+    description: "Architecture for package, components. Values: x86, x64, or ia64 (default: x86)"
+    required: false
+  extensions:
+    description: "WiX Extension assembly"
+    required: false
+  image:
+    description: "Docker image to use (default: quay.io/utilitywarehouse/docker-wix)"
+    required: false
+  candleExtraArguments:
+    description: "Extra arguments to add to the candle command"
+    required: false
+  lightExtraArguments:
+    description: "Extra arguments to add to the light command"
+    required: false
+  candleExecutable:
+    description: "Path/Name of the candle executable (default: candle)"
+    required: false
+  lightExecutable:
+    description: "Path/Name of the candle executable (default: light)"
+    required: false
+
+outputs:
+  msiPath:
+    description: "The path to the generated MSI"
+
+runs:
+  using: "node12"
+  main: "dist/index.js"

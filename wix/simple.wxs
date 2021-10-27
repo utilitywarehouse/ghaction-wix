@@ -1,0 +1,16 @@
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+   <Product Id="*" UpgradeCode="90da7606-40b4-4fd8-a01f-f5b0620c049f" Name="Simple Application" Version="0.0.1" Manufacturer="UW" Language="1033">
+      <Package InstallerVersion="200" Compressed="yes" Comments="Windows Installer Package" />
+      <Media Id="1" Cabinet="product.cab" EmbedCab="yes" />
+
+      <Directory Id="TARGETDIR" Name="SourceDir">
+         <Component Id="ApplicationFiles" Guid="604c0df8-3eff-45de-9c5b-bcf94db68a51">
+            <File Id="README.md" Name="README.md" Vital="no" DiskId="1" Source=".\README.md" />
+         </Component>
+      </Directory>
+
+      <Feature Id="DefaultFeature" Level="1">
+         <ComponentRef Id="ApplicationFiles" />
+      </Feature>
+   </Product>
+</Wix>

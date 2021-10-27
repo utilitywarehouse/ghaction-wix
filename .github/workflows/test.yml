@@ -1,0 +1,39 @@
+name: "build-test"
+on: # rebuild any PRs and main branch changes
+  pull_request:
+  push:
+    branches:
+      - main
+      - "releases/*"
+
+jobs:
+  build: # make sure build/ci work properly
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          yarn install
+      - run: |
+          yarn all
+  simpleTest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./
+        with:
+          name: Simple
+          sourceFiles: wix/simple.wxs
+          outputDir: msi
+  complexTest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./
+        with:
+          name: Multi
+          sourceFiles: wix/component.wxs,wix/complex.wxs
+          outputDir: msi
+          architecture: x64
+          extensions: WixUtilExtension
+          candleExtraArguments: |
+            -dlicensePath="./LICENSE"
