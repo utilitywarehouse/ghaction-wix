@@ -1,5 +1,5 @@
-[![GitHub release](https://img.shields.io/github/release/utiltywarehouse/ghaction-wix.svg?style=flat-square)](https://github.com/utiltywarehouse/ghaction-wix/releases/latest)
-[![CI workflow](https://img.shields.io/github/workflow/status/utiltywarehouse/ghaction-wix/test?label=ci&logo=github&style=flat-square)](https://github.com/utiltywarehouse/ghaction-wix/actions?workflow=ci)
+[![GitHub release](https://img.shields.io/github/release/utilitywarehouse/ghaction-wix.svg?style=flat-square)](https://github.com/utilitywarehouse/ghaction-wix/releases/latest)
+[![CI workflow](https://img.shields.io/github/workflow/status/utilitywarehouse/ghaction-wix/test?label=ci&logo=github&style=flat-square)](https://github.com/utilitywarehouse/ghaction-wix/actions?workflow=build-test)
 
 ## About
 
@@ -28,7 +28,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Choco help
-        uses: utiltywarehouse/ghaction-wix@v1
+        uses: utilitywarehouse/ghaction-wix@v1
         with:
           name: Multi
           sourceFiles: wix/component.wxs,wix/complex.wxs
