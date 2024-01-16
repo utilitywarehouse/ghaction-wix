@@ -10,7 +10,7 @@ jobs:
   build: # make sure build/ci work properly
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - run: |
           yarn install
       - run: |
@@ -18,7 +18,7 @@ jobs:
   simpleTest:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: ./
         with:
           name: Simple
@@ -27,7 +27,7 @@ jobs:
   complexTest:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: ./
         with:
           name: Multi
