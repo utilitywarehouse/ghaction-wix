@@ -16,15 +16,23 @@ on:
       - "**.md"
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   check-dist:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 # v2.7.0
 
       - name: Set Node.js 14.x
-        uses: actions/setup-node@v2.4.1
+        uses: actions/setup-node@270253e841af726300e85d718a5f606959b2903c # v2.4.1
         with:
           node-version: 14.x
 
@@ -44,7 +52,7 @@ jobs:
         id: diff
 
       # If index.js was different than expected, upload the expected version as an artifact
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@82c141cc518b40d92cc801eee768e7aafc9c2fa2 # v2.3.1
         if: ${{ failure() && steps.diff.conclusion == 'failure' }}
         with:
           name: dist
